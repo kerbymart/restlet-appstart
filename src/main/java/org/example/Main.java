@@ -1,12 +1,11 @@
 package org.example;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.example.config.Configuration;
-import org.example.modules.ConfigModule;
 import org.example.docs.EnhancedSwagger2SpecificationRestlet;
-import org.example.resources.HelloWorldResource;
-import org.example.resources.RootResource;
+import org.example.modules.ConfigModule;
+import org.example.resources.module.RestConfigModule;
+import org.example.resources.server.HelloWorldServerResource;
+import org.example.resources.server.RootServerResource;
 import org.restlet.Application;
 import org.restlet.Component;
 import org.restlet.Restlet;
@@ -40,15 +39,19 @@ public class Main extends Application {
 
     @Override
     public Restlet createInboundRoot() {
+        Configuration config = new Configuration();
+
         // Using Guice to manage dependencies modularly for easier testing and maintenance.
-        ConfigModule configModule = new ConfigModule();
-        FinderFactory factory = new RestletGuice.Module(configModule);
-        Injector injector = Guice.createInjector(configModule);
+        FinderFactory factory
+                = new RestletGuice.Module(
+                        new ConfigModule(getContext()),
+                        new RestConfigModule(getContext())
+                );
 
         // Set up the router to map incoming requests to their respective resources.
         Router router = new Router(getContext());
-        router.attachDefault(factory.finder(RootResource.class));
-        router.attach("/hello", factory.finder(HelloWorldResource.class));
+        router.attachDefault(factory.finder(RootServerResource.class));
+        router.attach("/hello", factory.finder(HelloWorldServerResource.class));
 
         // Provide UI for API visualization and testing.
         attachSwaggerUI(router);
@@ -58,7 +61,6 @@ public class Main extends Application {
         CorsFilter corsFilter = createCORSFilter(router);
 
         // Introduce rate limiting to protect the API from excessive requests.
-        Configuration config = injector.getInstance(Configuration.class);
         int rateLimit = config.getRateLimit();
         FirewallFilter firewallFilter = createFirewallFilter(corsFilter, rateLimit);
 

@@ -3,6 +3,7 @@ package org.example.modules;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import org.example.config.Configuration;
+import org.restlet.Context;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,13 @@ import java.util.logging.Logger;
 
 public class ConfigModule extends AbstractModule {
     private static final Logger LOGGER = Logger.getLogger(ConfigModule.class.getName());
+
+    private Context context;
+
+    public ConfigModule(Context context) {
+        super();
+        this.context = context;
+    }
 
     @Override
     protected void configure() {

@@ -1,20 +1,39 @@
 package org.example.config;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class Configuration {
     private final int rateLimit;
 
-    // Constructor injection is used to ensure that the fields are always initialized.
-    // The @Inject annotation indicates that this constructor should be used by the Guice dependency injection framework.
-    // The @Named annotation specifies that the value of the parameters should be obtained from the Guice configuration using the keys.
-    @Inject
-    public Configuration(@Named("firewall.ratelimit") int rateLimit) {
-        this.rateLimit = rateLimit;
+    public Configuration() {
+        Properties props = readProperties();
+        if (props != null) {
+            // default value will be 0 if property is not present
+            rateLimit = Integer.parseInt(props.getProperty("firewall.ratelimit", "0"));
+        } else {
+            rateLimit = 0;
+        }
     }
 
     public int getRateLimit() {
         return rateLimit;
+    }
+
+    /**
+     * Loads properties defined in the app.properties file.
+     * @return a Properties object containing the loaded properties
+     */
+    protected Properties readProperties(){
+        InputStream is = this.getClass().getResourceAsStream("/app.properties");
+        Properties props = new Properties();
+        try {
+            props.load(is);
+            return props;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

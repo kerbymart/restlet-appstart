@@ -1,22 +1,13 @@
 package org.example.resources;
 
-import com.wordnik.swagger.annotations.*;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiImplicitParam;
+import com.wordnik.swagger.annotations.ApiImplicitParams;
+import com.wordnik.swagger.annotations.ApiOperation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ResourceException;
 
 @Api(value = "/hello")
-public class HelloWorldResource extends org.restlet.resource.ServerResource {
-    private String name;
-
-    @Override
-    protected void doInit() throws ResourceException {
-        // Extract the "name" query parameter from the request
-        this.name = getQueryValue("name");
-        if (this.name == null) {
-            this.name = "world";  // default to "world" if no name is provided
-        }
-    }
-
+public interface HelloWorldResource {
     @Get
     @ApiOperation(value = "Get a hello message",
             notes = "Returns a hello message. You can specify a name as a query parameter.",
@@ -24,7 +15,5 @@ public class HelloWorldResource extends org.restlet.resource.ServerResource {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "name", value = "Name to be included in the hello message", required = false, dataType = "string", paramType = "query")
     })
-    public String represent() {
-        return "hello, " + this.name;
-    }
+    String represent();
 }
