@@ -69,6 +69,7 @@ public class MainTest {
     @Test
     @OperateOnDeployment("default")
     public void shouldBeAbleToInvokeServletInDeployedWebApp() {
+
         String targetUrl = deploymentUrl.toString() +"/hello";
 
         LOG.info("Target URL: " + targetUrl);
