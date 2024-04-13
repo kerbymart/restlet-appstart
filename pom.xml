@@ -5,30 +5,42 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.example</groupId>
-    <artifactId>quickstart-restlet-swagger</artifactId>
+    <artifactId>restlet-appstart</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <properties>
+        <java.version>1.8</java.version>
+        <guice.version>4.2.3</guice.version>
+
+        <!-- restlet -->
         <restlet.version>2.4.3</restlet.version>
         <restlet.ext.apispark.version>2.3.12</restlet.ext.apispark.version>
-        <gae.version>1.9.77</gae.version>
+
+        <!-- appengine -->
+        <gae.version>1.9.88</gae.version>
         <gae.home>${settings.localRepository}/com/google/appengine/appengine-java-sdk/${gae.version}/appengine-java-sdk/appengine-java-sdk-${gae.version}</gae.home>
         <gae.application.version>test</gae.application.version>
         <objectify.version>5.1.25</objectify.version>
-        <java.version>1.8</java.version>
-        <junit.version>4.13.1</junit.version>
+
+        <!-- test -->
+        <junit.version>4.8.2</junit.version>
         <version.arquillian>1.1.5.Final</version.arquillian>
         <version.arquillian.gae>1.0.0.Beta10</version.arquillian.gae>
         <version.arquillian.guice>1.0.0.Alpha2</version.arquillian.guice>
         <version.org.jboss.arquillian.graphene2>2.0.3.Final</version.org.jboss.arquillian.graphene2>
-        <version.shrinkwrap>2.2.0-beta-1</version.shrinkwrap>
-        <jetty.version>9.4.49.v20220914</jetty.version>
+        <shrinkwrap.api.version>1.2.3</shrinkwrap.api.version>
+        <shrinkwrap.resolver.version>2.2.0</shrinkwrap.resolver.version>
+        <guice.junit.test.runner.version>1.1</guice.junit.test.runner.version>
+
+        <!-- maven -->
         <maven.gae.version>1.9.9</maven.gae.version>
         <maven.dependency.plugin.version>3.3.0</maven.dependency.plugin.version>
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <maven.war.plugin.version>3.3.1</maven.war.plugin.version>
-        <maven.jetty.plugin.version>6.1.25</maven.jetty.plugin.version>
+
+        <!-- webapp -->
         <webapp-runner.version>9.0.73.0</webapp-runner.version>
+        <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
     </properties>
 
     <dependencies>
@@ -134,11 +146,30 @@
             <groupId>org.restlet.gae</groupId>
             <artifactId>org.restlet.ext.apispark</artifactId>
             <version>${restlet.ext.apispark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <!--
+                     Conflict with Shrinkwrap dependency on xml-apis
+                     -->
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.restlet.gae</groupId>
             <artifactId>org.restlet.ext.guice</artifactId>
             <version>${restlet.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.inject</groupId>
+                    <artifactId>guice</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Enables the writing and execution of unit tests using JUnit. -->
@@ -147,6 +178,23 @@
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.carlosbecker</groupId>
+            <artifactId>guice-junit-test-runner</artifactId>
+            <version>${guice.junit.test.runner.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${guice.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-servlet</artifactId>
+            <version>${guice.version}</version>
         </dependency>
 
         <!--
@@ -200,7 +248,7 @@
         <dependency>
             <groupId>org.jboss.shrinkwrap.resolver</groupId>
             <artifactId>shrinkwrap-resolver-depchain</artifactId>
-            <version>${version.shrinkwrap}</version>
+            <version>${shrinkwrap.resolver.version}</version>
             <scope>test</scope>
             <type>pom</type>
         </dependency>
