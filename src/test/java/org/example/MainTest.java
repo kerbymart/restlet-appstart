@@ -19,10 +19,7 @@ import org.restlet.data.Method;
 import org.restlet.data.Protocol;
 import org.restlet.data.Status;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.logging.Logger;
 
@@ -71,7 +68,7 @@ public class MainTest {
 
     @Test
     @OperateOnDeployment("default")
-    public void shouldBeAbleToInvokeServletInDeployedWebApp() throws Exception {
+    public void shouldBeAbleToInvokeServletInDeployedWebApp() {
         String targetUrl = deploymentUrl.toString() +"/hello";
 
         LOG.info("Target URL: " + targetUrl);
