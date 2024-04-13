@@ -7,17 +7,23 @@
     <groupId>org.example</groupId>
     <artifactId>quickstart-restlet-swagger</artifactId>
     <version>1.0-SNAPSHOT</version>
-
+    <packaging>war</packaging>
     <properties>
         <restlet.version>2.4.3</restlet.version>
         <restlet.ext.apispark.version>2.3.12</restlet.ext.apispark.version>
+        <gae.version>1.9.77</gae.version>
+        <gae.home>${settings.localRepository}/com/google/appengine/appengine-java-sdk/${gae.version}/appengine-java-sdk/appengine-java-sdk-${gae.version}</gae.home>
+        <gae.application.version>test</gae.application.version>
+        <objectify.version>5.1.25</objectify.version>
         <java.version>1.8</java.version>
         <junit.version>4.13.1</junit.version>
-        <shrinkwrap.api.version>1.2.3</shrinkwrap.api.version>
-        <shrinkwrap.resolver.version>2.2.0</shrinkwrap.resolver.version>
-        <arquillian.version>1.1.11.Final</arquillian.version>
-        <arquillian.jetty.embedded.version>1.0.0.CR3</arquillian.jetty.embedded.version>
+        <version.arquillian>1.1.5.Final</version.arquillian>
+        <version.arquillian.gae>1.0.0.Beta10</version.arquillian.gae>
+        <version.arquillian.guice>1.0.0.Alpha2</version.arquillian.guice>
+        <version.org.jboss.arquillian.graphene2>2.0.3.Final</version.org.jboss.arquillian.graphene2>
+        <version.shrinkwrap>2.2.0-beta-1</version.shrinkwrap>
         <jetty.version>9.4.49.v20220914</jetty.version>
+        <maven.gae.version>1.9.9</maven.gae.version>
         <maven.dependency.plugin.version>3.3.0</maven.dependency.plugin.version>
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <maven.war.plugin.version>3.3.1</maven.war.plugin.version>
@@ -25,44 +31,61 @@
         <webapp-runner.version>9.0.73.0</webapp-runner.version>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>maven-restlet</id>
-            <name>Restlet repository</name>
-            <url>https://maven.restlet.talend.com</url>
-        </repository>
-        <!--Needed by ApiSpark due to RAML dependency-->
-        <repository>
-            <id>mulesoft-releases</id>
-            <name>MuleSoft Releases Repository</name>
-            <url>https://repository-master.mulesoft.org/releases/</url>
-        </repository>
-    </repositories>
-
-    <dependencyManagement>
-        <dependencies>
-            <!--
-                Arquillian BOM:
-                Centralizes version management for all Arquillian-related dependencies, ensuring
-                consistent and compatible versions across the project.
-            -->
-            <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-bom</artifactId>
-                <version>${arquillian.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
+        <!--
+        Google App Engine:
+            Provides the necessary libraries for deploying the application to Google App Engine.
+        -->
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-1.0-sdk</artifactId>
+            <version>${gae.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-labs</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-stubs</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-testing</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+        Remote API:
+            Provides the necessary libraries for using the Remote API to interact with the Google App Engine datastore.
+        -->
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-remote-api</artifactId>
+            <version>${gae.version}</version>
+        </dependency>
+
+        <!--
+        Objectify:
+            Objectify is a Java data access API specifically designed for the Google App Engine datastore.
+        -->
+        <dependency>
+            <groupId>com.googlecode.objectify</groupId>
+            <artifactId>objectify</artifactId>
+            <version>${objectify.version}</version>
+        </dependency>
+
         <!--
             Restlet Framework's Core Dependency:
             Essential for creating RESTful web services using Restlet.
         -->
         <dependency>
-            <groupId>org.restlet.jee</groupId>
+            <groupId>org.restlet.gae</groupId>
             <artifactId>org.restlet</artifactId>
             <version>${restlet.version}</version>
         </dependency>
@@ -73,7 +96,7 @@
             the use of HTTP connectors in a Servlet environment.
         -->
         <dependency>
-            <groupId>org.restlet.jee</groupId>
+            <groupId>org.restlet.gae</groupId>
             <artifactId>org.restlet.ext.servlet</artifactId>
             <version>${restlet.version}</version>
         </dependency>
@@ -85,7 +108,7 @@
             Note: RAML parser has been excluded to prevent potential conflicts.
         -->
         <dependency>
-            <groupId>org.restlet.jee</groupId>
+            <groupId>org.restlet.gae</groupId>
             <artifactId>org.restlet.ext.swagger</artifactId>
             <version>${restlet.version}</version>
             <exclusions>
@@ -108,12 +131,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.restlet.jee</groupId>
+            <groupId>org.restlet.gae</groupId>
             <artifactId>org.restlet.ext.apispark</artifactId>
             <version>${restlet.ext.apispark.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.restlet.jee</groupId>
+            <groupId>org.restlet.gae</groupId>
             <artifactId>org.restlet.ext.guice</artifactId>
             <version>${restlet.version}</version>
         </dependency>
@@ -127,78 +150,59 @@
         </dependency>
 
         <!--
-            Arquillian with JUnit:
-            Enhances the JUnit testing capability by enabling tests to
-            be run inside actual runtime environments.
+
+        The arquillian-gae-local dependency uses an older version of Jetty internally
+        which expects org.mortbay.xml.XmlParser.
+        However, that class is not present in Jetty 9 or later
         -->
         <dependency>
-            <groupId>org.jboss.arquillian.junit</groupId>
-            <artifactId>arquillian-junit-container</artifactId>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty</artifactId>
+            <version>6.1.26</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+            <version>6.1.26</version>
             <scope>test</scope>
         </dependency>
 
         <!--
-            Arquillian Jetty Embedded:
-            Configures Arquillian to utilize Jetty as the embedded server for tests.
+        Arquillian:
+            Arquillian is a platform that simplifies integration testing for Java middleware.
         -->
         <dependency>
             <groupId>org.jboss.arquillian.container</groupId>
-            <artifactId>arquillian-jetty-embedded-9</artifactId>
-            <version>${arquillian.jetty.embedded.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!--
-            ShrinkWrap:
-            A toolset for assembling archives (like WAR and JAR). Used extensively
-            with Arquillian to create test deployments.
-            - API: The core API for ShrinkWrap.
-            - Resolver (Maven): Resolves Maven dependencies for the created archives.
-            - Resolver Implementation: Implementation for the Maven resolver.
-            - SPI (Service Provider Interface): Core interfaces and classes for ShrinkWrap Resolver.
-        -->
-        <dependency>
-            <groupId>org.jboss.shrinkwrap</groupId>
-            <artifactId>shrinkwrap-api</artifactId>
-            <version>${shrinkwrap.api.version}</version>
+            <artifactId>arquillian-gae-local</artifactId>
+            <version>${version.arquillian.gae}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jboss.shrinkwrap.resolver</groupId>
-            <artifactId>shrinkwrap-resolver-api-maven</artifactId>
-            <version>${shrinkwrap.resolver.version}</version>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <version>${version.arquillian}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.graphene</groupId>
+            <artifactId>graphene-webdriver</artifactId>
+            <version>${version.org.jboss.arquillian.graphene2}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.extension</groupId>
+            <artifactId>arquillian-guice-impl</artifactId>
+            <version>${version.arquillian.guice}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap.resolver</groupId>
-            <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-            <version>${shrinkwrap.resolver.version}</version>
+            <artifactId>shrinkwrap-resolver-depchain</artifactId>
+            <version>${version.shrinkwrap}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.shrinkwrap.resolver</groupId>
-            <artifactId>shrinkwrap-resolver-spi</artifactId>
-            <version>${shrinkwrap.resolver.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!--
-            Jetty Dependencies:
-            Facilitate the deployment and running of tests specifically in a Jetty environment.
-            - Deploy: Provides deployment capabilities in Jetty.
-            - Annotations: Supplies Jetty-specific annotations required for Servlet 3.1 compatibility.
-        -->
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-deploy</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-annotations</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
+            <type>pom</type>
         </dependency>
     </dependencies>
 
@@ -235,6 +239,8 @@
                 <configuration>
                     <!-- Ensure classes are packaged within the WAR file -->
                     <archiveClasses>true</archiveClasses>
+                    <outputDirectory>deployments</outputDirectory>
+                    <warName>ROOT</warName>
                     <webResources>
                         <!-- Define additional resources for inclusion in the WAR. -->
                         <resource>
@@ -249,63 +255,35 @@
                 </configuration>
             </plugin>
 
-            <!-- Jetty Plugin: Allows for running the application in a Jetty server. -->
             <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
-                <version>${maven.jetty.plugin.version}</version>
+                <groupId>com.google.appengine</groupId>
+                <artifactId>appengine-maven-plugin</artifactId>
+                <version>${maven.gae.version}</version>
                 <configuration>
-                    <!-- Scan for changes every 10 seconds and auto-reload if necessary -->
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
-                    <!-- Define the connector configuration, including port and idle timeout -->
-                    <connectors>
-                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-                            <port>8080</port>
-                            <maxIdleTime>60000</maxIdleTime>
-                        </connector>
-                    </connectors>
-                    <!-- Set the context path for the application -->
-                    <contextPath>/</contextPath>
-                    <!-- Configuration for stopping the Jetty server (values left for customization) -->
-                    <stopKey/>
-                    <stopPort/>
+                    <enableJarClasses>false</enableJarClasses>
+                    <jvmFlags>
+                        <jvmFlag>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmFlag>
+                    </jvmFlags>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <!--
-                    Maven Dependency Plugin:
-                    Purpose:
-                    - Added to facilitate manual testing of the Shrinkwrap generated WAR.
-                    - This was necessary due to intermittent failures in Arquillian tests.
-                    - Using this plugin, the WAR can be manually loaded via the webapp-runner, enabling testing via browser and API tools like Postman.
-                    Usage:
-                    java -jar target/dependency/webapp-runner.jar target/arquillian-jetty-temp/export[random-number]test.war
-                -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven.dependency.plugin.version}</version>
-                <executions>
-                    <!-- Copy webapp-runner during the 'package' phase for testing Shrinkwrap WARs. -->
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Define the Heroku webapp-runner to be copied. -->
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.heroku</groupId>
-                                    <artifactId>webapp-runner</artifactId>
-                                    <version>${webapp-runner.version}</version>
-                                    <destFileName>webapp-runner.jar</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>maven-restlet</id>
+            <name>Restlet repository</name>
+            <url>https://maven.restlet.talend.com</url>
+        </repository>
+        <!--Needed by ApiSpark due to RAML dependency-->
+        <repository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>https://repository-master.mulesoft.org/releases/</url>
+        </repository>
+    </repositories>
 </project>

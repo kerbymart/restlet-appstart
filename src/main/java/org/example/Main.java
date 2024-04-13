@@ -98,5 +98,4 @@ public class Main extends Application {
         swagger2SpecificationRestlet.setBasePath("http://localhost:8080/");
         swagger2SpecificationRestlet.attach(router, "/api-docs.json");
     }
-
 }
