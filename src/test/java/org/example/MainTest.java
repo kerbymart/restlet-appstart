@@ -1,5 +1,7 @@
 package org.example;
 
+import com.google.appengine.repackaged.com.google.gson.Gson;
+import org.example.resources.model.Greeting;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -15,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.restlet.Client;
 import org.restlet.Request;
 import org.restlet.Response;
+import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Protocol;
 import org.restlet.data.Status;
@@ -71,15 +74,21 @@ public class MainTest {
     public void shouldBeAbleToInvokeServletInDeployedWebApp() {
 
         String targetUrl = deploymentUrl.toString() +"/hello";
+        Gson gson = new Gson();
+        Greeting greeting = new Greeting("sam");
+
+        String jsonBody = gson.toJson(greeting);
 
         LOG.info("Target URL: " + targetUrl);
 
-        Request request = new Request(Method.GET, targetUrl);
+        Request request = new Request(Method.POST, targetUrl);
+        request.setEntity(jsonBody, MediaType.APPLICATION_JSON);
+
         Response response = client.handle(request);
 
         assertNotNull(response);
         assertEquals(Status.SUCCESS_OK, response.getStatus());
         assertEquals("Verify that the servlet was deployed and returns expected result",
-                "hello, world", response.getEntityAsText());
+                "hello, " + greeting.getName(), response.getEntityAsText());
     }
 }
