@@ -1,7 +1,12 @@
 package org.example.resources.server;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.resources.HelloWorldResource;
+import org.example.resources.model.Greeting;
+import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
+
+import java.io.IOException;
 
 public class HelloWorldServerResource extends org.restlet.resource.ServerResource
     implements HelloWorldResource {
@@ -17,7 +22,18 @@ public class HelloWorldServerResource extends org.restlet.resource.ServerResourc
     }
 
     @Override
-    public String represent() {
-        return "hello, " + this.name;
+    public String postHello(String json) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.registerSubtypes(Greeting.class);
+            // Deserialize the JSON payload into a Greeting object
+            Greeting greeting = mapper.readValue(json, Greeting.class);
+            this.name = greeting.getName();
+            return "hello, " + this.name;
+        } catch (IOException e) {
+            // Handle the error (e.g., log it, return an error message)
+            setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+            return "Error deserializing JSON";
+        }
     }
 }

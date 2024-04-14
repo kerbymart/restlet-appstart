@@ -1,19 +1,13 @@
 package org.example.resources;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiImplicitParam;
-import com.wordnik.swagger.annotations.ApiImplicitParams;
-import com.wordnik.swagger.annotations.ApiOperation;
-import org.restlet.resource.Get;
+import com.wordnik.swagger.annotations.*;
+import org.restlet.resource.Post;
 
 @Api(value = "/hello")
 public interface HelloWorldResource {
-    @Get
+    @Post
     @ApiOperation(value = "Get a hello message",
-            notes = "Returns a hello message. You can specify a name as a query parameter.",
+            notes = "Returns a hello message. You can specify a name as a query parameter or in Greeting JSON format.",
             response = String.class)
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "name", value = "Name to be included in the hello message", required = false, dataType = "string", paramType = "query")
-    })
-    String represent();
+    String postHello(@ApiParam(value = "Greeting JSON in String format", required = true) String greeting);
 }
