@@ -5,7 +5,7 @@
                 http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
     <container qualifier="appengine-local" default="true">
         <configuration>
-            <property name="sdkDir">${user.home}/.m2/repository/com/google/appengine/appengine-java-sdk/1.9.9/appengine-java-sdk/appengine-java-sdk-1.9.9/</property>
+            <property name="sdkDir">${user.home}/.m2/repository/com/google/appengine/appengine-java-sdk/1.9.57/appengine-java-sdk/appengine-java-sdk-1.9.57/</property>
         </configuration>
     </container>
 </arquillian>
