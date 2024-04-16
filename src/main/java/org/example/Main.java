@@ -2,13 +2,12 @@ package org.example;
 
 import org.example.config.Configuration;
 import org.example.docs.EnhancedSwagger2SpecificationRestlet;
-import org.example.modules.ConfigModule;
-import org.example.resources.module.RestConfigModule;
+import org.example.config.module.ConfigModule;
+import org.example.module.MainModule;
+import org.example.resources.module.*;
 import org.example.resources.server.HelloWorldServerResource;
 import org.example.resources.server.RootServerResource;
-import org.restlet.Application;
-import org.restlet.Component;
-import org.restlet.Restlet;
+import org.restlet.*;
 import org.restlet.data.Protocol;
 import org.restlet.engine.application.CorsFilter;
 import org.restlet.ext.apispark.internal.firewall.FirewallFilter;
@@ -17,17 +16,21 @@ import org.restlet.ext.apispark.internal.firewall.handler.policy.UniqueLimitPoli
 import org.restlet.ext.apispark.internal.firewall.rule.FirewallRule;
 import org.restlet.ext.apispark.internal.firewall.rule.PeriodicFirewallCounterRule;
 import org.restlet.ext.apispark.internal.firewall.rule.policy.IpAddressCountingPolicy;
-import org.restlet.ext.guice.FinderFactory;
-import org.restlet.ext.guice.RestletGuice;
 import org.restlet.ext.swagger.Swagger2SpecificationRestlet;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 public class Main extends Application {
+
+    private RestletComponent restletComponent;
+
+    @Inject
+    Configuration configuration;
 
     public static void main(String[] args) throws Exception {
         // Set up and start the main application component, binding it to an HTTP server on port 8080.
@@ -39,19 +42,42 @@ public class Main extends Application {
 
     @Override
     public Restlet createInboundRoot() {
-        Configuration config = new Configuration();
 
-        // Using Guice to manage dependencies modularly for easier testing and maintenance.
-        FinderFactory factory
-                = new RestletGuice.Module(
-                        new ConfigModule(getContext()),
-                        new RestConfigModule(getContext())
-                );
+        ConfigModule configModule = new ConfigModule();
+        configuration = configModule.getConfiguration();
+
+        restletComponent = DaggerRestletComponent.builder()
+                .mainModule(new MainModule(this))
+                .restletModule(new RestletModule(this.getContext()))
+                .configModule(configModule)
+                .build();
+
+        restletComponent.inject(this);
 
         // Set up the router to map incoming requests to their respective resources.
         Router router = new Router(getContext());
-        router.attachDefault(factory.finder(RootServerResource.class));
-        router.attach("/hello", factory.finder(HelloWorldServerResource.class));
+
+        HelloWorldServerResource helloWorldServerResource = new HelloWorldServerResource();
+        RootServerResource rootServerResource = new RootServerResource();
+
+        restletComponent.inject(rootServerResource);
+        restletComponent.inject(helloWorldServerResource);
+
+        router.attachDefault(new Restlet() {
+            @Override
+            public void handle(Request request, Response response) {
+                rootServerResource.init(getContext(), request, response);
+                rootServerResource.handle();
+            }
+        });
+
+        router.attach("/hello", new Restlet(getContext()) {
+            @Override
+            public void handle(Request request, Response response) {
+                helloWorldServerResource.init(getContext(), request, response);
+                helloWorldServerResource.handle();
+            }
+        });
 
         // Provide UI for API visualization and testing.
         attachSwaggerUI(router);
@@ -61,7 +87,7 @@ public class Main extends Application {
         CorsFilter corsFilter = createCORSFilter(router);
 
         // Introduce rate limiting to protect the API from excessive requests.
-        int rateLimit = config.getRateLimit();
+        int rateLimit = configuration.getRateLimit();
         FirewallFilter firewallFilter = createFirewallFilter(corsFilter, rateLimit);
 
         return firewallFilter;

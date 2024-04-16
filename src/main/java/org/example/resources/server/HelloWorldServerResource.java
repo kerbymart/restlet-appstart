@@ -1,16 +1,24 @@
 package org.example.resources.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.config.Configuration;
 import org.example.resources.HelloWorldResource;
 import org.example.resources.model.Greeting;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 public class HelloWorldServerResource extends org.restlet.resource.ServerResource
     implements HelloWorldResource {
     private String name;
+
+    @Inject
+    Configuration configuration;
+
+    public HelloWorldServerResource() {
+    }
 
     @Override
     protected void doInit() throws ResourceException {
@@ -29,6 +37,7 @@ public class HelloWorldServerResource extends org.restlet.resource.ServerResourc
             // Deserialize the JSON payload into a Greeting object
             Greeting greeting = mapper.readValue(json, Greeting.class);
             this.name = greeting.getName();
+            System.out.println("Rate Limit: " + configuration.getRateLimit());
             return "hello, " + this.name;
         } catch (IOException e) {
             // Handle the error (e.g., log it, return an error message)
