@@ -19,10 +19,10 @@ public class HelloWorldServerResource extends org.restlet.resource.ServerResourc
 
     private String name;
 
-    @Inject
     Configuration configuration;
 
-    public HelloWorldServerResource() {
+    public HelloWorldServerResource(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     @Override

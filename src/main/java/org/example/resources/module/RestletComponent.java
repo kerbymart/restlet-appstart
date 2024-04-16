@@ -11,11 +11,12 @@ import org.restlet.Application;
 import javax.inject.Singleton;
 
 @Singleton
-@Component(modules = {MainModule.class, RestletModule.class, ConfigModule.class})
+@Component(modules = {MainModule.class,  ConfigModule.class, RestletModule.class})
 public interface RestletComponent {
+
     void inject(Application application);
-    void inject(RootServerResource rootServerResource);
-    void inject(HelloWorldServerResource helloWorldServerResource);
-    void inject(Configuration configuration);
+    Configuration configuration();
+    RootServerResource rootServerResource();
+    HelloWorldServerResource helloWorldServerResource();
 }
 

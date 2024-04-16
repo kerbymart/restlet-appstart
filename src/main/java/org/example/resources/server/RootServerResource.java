@@ -9,12 +9,10 @@ import javax.inject.Inject;
 
 public class RootServerResource extends  org.restlet.resource.ServerResource
     implements RootResource {
-
-    @Inject
     Configuration configuration;
 
-    public RootServerResource() {
-
+    public RootServerResource(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     @Override

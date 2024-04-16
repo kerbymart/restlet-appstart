@@ -2,6 +2,7 @@ package org.example.resources.module;
 
 import dagger.Module;
 import dagger.Provides;
+import org.example.config.Configuration;
 import org.example.resources.server.HelloWorldServerResource;
 import org.example.resources.server.RootServerResource;
 import org.restlet.Context;
@@ -25,13 +26,13 @@ public class RestletModule {
 
     @Provides
     @Singleton
-    HelloWorldServerResource provideHelloWorldServerResource() {
-        return new HelloWorldServerResource();
+    HelloWorldServerResource provideHelloWorldServerResource(Configuration configuration) {
+        return new HelloWorldServerResource(configuration);
     }
 
     @Provides
     @Singleton
-    RootServerResource provideRootServerResource() {
-        return new RootServerResource();
+    RootServerResource provideRootServerResource(Configuration configuration) {
+        return new RootServerResource(configuration);
     }
 }
