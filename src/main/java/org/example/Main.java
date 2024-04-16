@@ -4,6 +4,7 @@ import org.example.config.Configuration;
 import org.example.docs.EnhancedSwagger2SpecificationRestlet;
 import org.example.config.module.ConfigModule;
 import org.example.module.MainModule;
+import org.example.resources.module.InjectableResourceHandler;
 import org.example.resources.module.*;
 import org.example.resources.server.HelloWorldServerResource;
 import org.example.resources.server.RootServerResource;
@@ -63,21 +64,8 @@ public class Main extends Application {
         restletComponent.inject(rootServerResource);
         restletComponent.inject(helloWorldServerResource);
 
-        router.attachDefault(new Restlet() {
-            @Override
-            public void handle(Request request, Response response) {
-                rootServerResource.init(getContext(), request, response);
-                rootServerResource.handle();
-            }
-        });
-
-        router.attach("/hello", new Restlet(getContext()) {
-            @Override
-            public void handle(Request request, Response response) {
-                helloWorldServerResource.init(getContext(), request, response);
-                helloWorldServerResource.handle();
-            }
-        });
+        router.attachDefault(new InjectableResourceHandler<>(getContext(), () -> rootServerResource));
+        router.attach("/hello", new InjectableResourceHandler<>(getContext(), () -> helloWorldServerResource));
 
         // Provide UI for API visualization and testing.
         attachSwaggerUI(router);
