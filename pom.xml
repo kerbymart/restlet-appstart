@@ -13,6 +13,7 @@
         <java.version>1.8</java.version>
         <guice.version>4.2.3</guice.version>
         <dagger.version>2.7</dagger.version>
+
         <!-- restlet -->
         <restlet.version>2.4.3</restlet.version>
         <restlet.ext.apispark.version>2.3.12</restlet.ext.apispark.version>
@@ -38,6 +39,7 @@
         <maven.dependency.plugin.version>3.3.0</maven.dependency.plugin.version>
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <maven.war.plugin.version>3.3.1</maven.war.plugin.version>
+        <maven.checkstyle.plugin.version>3.3.1</maven.checkstyle.plugin.version>
 
         <!-- webapp -->
         <webapp-runner.version>9.0.73.0</webapp-runner.version>
@@ -364,6 +366,22 @@
             </plugin>
         </plugins>
     </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>checkstyle</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
     <profiles>
         <profile>
             <id>jar</id>
