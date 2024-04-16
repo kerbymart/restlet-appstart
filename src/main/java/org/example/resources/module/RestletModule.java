@@ -5,9 +5,8 @@ import dagger.Provides;
 import org.example.resources.server.HelloWorldServerResource;
 import org.example.resources.server.RootServerResource;
 import org.restlet.Context;
+
 import javax.inject.Singleton;
-import java.util.Properties;
-import org.example.config.Configuration;
 
 @Module
 public class RestletModule {

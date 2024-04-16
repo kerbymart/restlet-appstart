@@ -198,15 +198,22 @@
             <scope>test</scope>
         </dependency>
 
+        <!--
+        Guice:
+            Guice is a lightweight dependency injection framework for Java.
+            Used as test dependency for Arquillian.
+        -->
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>${guice.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-servlet</artifactId>
             <version>${guice.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!--
