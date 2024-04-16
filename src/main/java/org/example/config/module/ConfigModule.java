@@ -1,30 +1,26 @@
-package org.example.modules;
+package org.example.config.module;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
+import dagger.Module;
+import dagger.Provides;
 import org.example.config.Configuration;
 import org.restlet.Context;
 
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ConfigModule extends AbstractModule {
+@Module
+public class ConfigModule {
     private static final Logger LOGGER = Logger.getLogger(ConfigModule.class.getName());
 
-    private Context context;
-
-    public ConfigModule(Context context) {
-        super();
-        this.context = context;
-    }
-
-    @Override
-    protected void configure() {
-        Names.bindProperties(binder(), readProperties());
-        bind(Configuration.class);
+    @Provides
+    @Singleton
+    public Configuration getConfiguration() {
+        Properties props = readProperties();
+        return new Configuration(props);
     }
 
     protected Properties readProperties(){
