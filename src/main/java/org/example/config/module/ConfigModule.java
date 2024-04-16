@@ -2,8 +2,6 @@ package org.example.config.module;
 
 import dagger.Module;
 import dagger.Provides;
-import org.example.config.Configuration;
-import org.restlet.Context;
 
 import javax.inject.Singleton;
 import java.io.IOException;
@@ -11,6 +9,8 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.example.config.Configuration;
 
 @Module
 public class ConfigModule {

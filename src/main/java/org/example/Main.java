@@ -30,7 +30,6 @@ public class Main extends Application {
 
     private RestletComponent restletComponent;
 
-    @Inject
     Configuration configuration;
 
     public static void main(String[] args) throws Exception {
@@ -44,28 +43,23 @@ public class Main extends Application {
     @Override
     public Restlet createInboundRoot() {
 
-        ConfigModule configModule = new ConfigModule();
-        configuration = configModule.getConfiguration();
-
         restletComponent = DaggerRestletComponent.builder()
                 .mainModule(new MainModule(this))
                 .restletModule(new RestletModule(this.getContext()))
-                .configModule(configModule)
+                .configModule(new ConfigModule())
                 .build();
 
         restletComponent.inject(this);
 
+        configuration = restletComponent.configuration();
+
         // Set up the router to map incoming requests to their respective resources.
         Router router = new Router(getContext());
 
-        HelloWorldServerResource helloWorldServerResource = new HelloWorldServerResource();
-        RootServerResource rootServerResource = new RootServerResource();
-
-        restletComponent.inject(rootServerResource);
-        restletComponent.inject(helloWorldServerResource);
-
-        router.attachDefault(new InjectableResourceHandler<>(getContext(), () -> rootServerResource));
-        router.attach("/hello", new InjectableResourceHandler<>(getContext(), () -> helloWorldServerResource));
+        router.attachDefault(new InjectableResourceHandler<>(getContext(),
+                () -> restletComponent.rootServerResource()));
+        router.attach("/hello", new InjectableResourceHandler<>(getContext(),
+                () -> restletComponent.helloWorldServerResource()));
 
         // Provide UI for API visualization and testing.
         attachSwaggerUI(router);
