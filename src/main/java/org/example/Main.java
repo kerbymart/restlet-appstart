@@ -36,14 +36,6 @@ public class Main extends Application {
 
     private Configuration configuration;
 
-    public static void main(final String[] args) throws Exception {
-        // Set up and start the main application component, binding it to an HTTP server on port 8080.
-        Component component = new Component();
-        component.getServers().add(Protocol.HTTP, HTTP_PORT);
-        component.getDefaultHost().attach("", new Main());
-        component.start();
-    }
-
     @Override
     public Restlet createInboundRoot() {
 

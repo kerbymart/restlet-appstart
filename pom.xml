@@ -134,17 +134,6 @@
             </exclusions>
         </dependency>
 
-        <!--
-            Restlet's Standalone HTTP Connectors:
-            Enables Restlet applications to run as standalone applications
-            by leveraging simple framework-based HTTP connectors.
-        -->
-        <dependency>
-            <groupId>org.restlet.jse</groupId>
-            <artifactId>org.restlet.ext.simple</artifactId>
-            <version>${restlet.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.restlet.gae</groupId>
             <artifactId>org.restlet.ext.apispark</artifactId>
